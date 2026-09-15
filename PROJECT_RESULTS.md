@@ -57,3 +57,29 @@ Future container-hardening work should aim to:
 - Observed that a Docker container reporting `Up` does not guarantee that the application inside it is ready to receive traffic.
 - An immediate request after stack startup received a connection reset, while a subsequent request succeeded after Uvicorn completed startup.
 - This establishes a future improvement target for container health checks and readiness validation.
+
+## Day 10 — Container Security
+
+### Vulnerability baseline
+
+Trivy 0.74.0 scan of the API container image:
+
+- Debian OS: 13.6
+- HIGH findings: 53
+- CRITICAL findings: 3
+- Total HIGH/CRITICAL findings: 56
+- Python package HIGH/CRITICAL findings: 0
+- Container runtime user: root (uid=0)
+
+Initial findings were concentrated in operating-system packages inherited from the base image.
+
+### Container hardening results
+
+- Changed the FastAPI runtime identity from `root` (`uid=0`) to a dedicated non-root `appuser` (`uid=1000`).
+- Verified `/health` and database-backed API functionality remained operational after privilege reduction.
+- Baseline Trivy scan detected 56 HIGH/CRITICAL OS-package findings: 53 HIGH and 3 CRITICAL.
+- Refreshing the upstream base image alone did not change the vulnerability count.
+- Upgraded installed Debian packages during the image build.
+- Reduced HIGH/CRITICAL findings from 56 to 44, a 21.4% reduction.
+- Eliminated all detected CRITICAL findings: 3 → 0.
+- Python dependencies remained at 0 detected HIGH/CRITICAL findings.

@@ -4,3 +4,10 @@ __pycache__/
 *.pyc
 .pytest_cache/
 .env
+
+tests/
+requirements-dev.txt
+README.md
+PROJECT_RESULTS.md
+compose.yaml
+init.sql
