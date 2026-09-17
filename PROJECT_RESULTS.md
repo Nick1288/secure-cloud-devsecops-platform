@@ -88,3 +88,12 @@ Future container-hardening work should aim to:
 - `/health` and database-backed `/users` remained functional after hardening.
 - Test-only packages were absent from the final production container.
 - Final image content size: 71.6 MB.
+
+## Day 11 — GitHub Actions CI
+
+- Published the project to GitHub and connected the local repository to `origin`.
+- Built a GitHub Actions CI workflow triggered on pushes and pull requests.
+- Configured an ephemeral Ubuntu runner with Python 3.12.
+- Automated installation of development dependencies, pytest execution, and Docker image builds.
+- Successfully completed CI runs on a clean GitHub-hosted runner.
+- Restricted the workflow `GITHUB_TOKEN` to read-only repository contents while preserving full test and build functionality.
