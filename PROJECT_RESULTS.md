@@ -60,26 +60,31 @@ Future container-hardening work should aim to:
 
 ## Day 10 — Container Security
 
-### Vulnerability baseline
+### Baseline
 
-Trivy 0.74.0 scan of the API container image:
+- API container initially ran as `root` (`uid=0`).
+- Initial Trivy vulnerability scan detected 56 HIGH/CRITICAL OS-package findings:
+  - 53 HIGH
+  - 3 CRITICAL
+- Python dependencies had 0 detected HIGH/CRITICAL findings.
+- Initial image content size: 65.3 MB.
 
-- Debian OS: 13.6
-- HIGH findings: 53
-- CRITICAL findings: 3
-- Total HIGH/CRITICAL findings: 56
-- Python package HIGH/CRITICAL findings: 0
-- Container runtime user: root (uid=0)
+### Hardening
 
-Initial findings were concentrated in operating-system packages inherited from the base image.
+- Created a dedicated `appuser` and configured the API to run as non-root.
+- Upgraded Debian packages during the image build.
+- Separated production dependencies from development/test dependencies.
+- Removed test-only packages such as pytest and HTTPX from the production container.
+- Replaced broad `COPY . .` behavior with explicit copying of runtime application files.
+- Excluded `.env` and non-runtime project files from the Docker build context.
+- Kept database credentials out of the image and injected `DATABASE_URL` at container runtime.
 
-### Container hardening results
+### Results
 
-- Changed the FastAPI runtime identity from `root` (`uid=0`) to a dedicated non-root `appuser` (`uid=1000`).
-- Verified `/health` and database-backed API functionality remained operational after privilege reduction.
-- Baseline Trivy scan detected 56 HIGH/CRITICAL OS-package findings: 53 HIGH and 3 CRITICAL.
-- Refreshing the upstream base image alone did not change the vulnerability count.
-- Upgraded installed Debian packages during the image build.
-- Reduced HIGH/CRITICAL findings from 56 to 44, a 21.4% reduction.
-- Eliminated all detected CRITICAL findings: 3 → 0.
-- Python dependencies remained at 0 detected HIGH/CRITICAL findings.
+- Runtime identity changed from `root` (`uid=0`) to `appuser` (`uid=1000`).
+- HIGH/CRITICAL vulnerability findings reduced from 56 to 44 — a 21.4% reduction.
+- CRITICAL findings reduced from 3 to 0.
+- Final vulnerability count: 44 HIGH, 0 CRITICAL.
+- `/health` and database-backed `/users` remained functional after hardening.
+- Test-only packages were absent from the final production container.
+- Final image content size: 71.6 MB.
